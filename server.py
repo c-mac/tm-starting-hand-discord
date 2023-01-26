@@ -33,39 +33,44 @@ def run_bot():
             for i in range(208)
         ]
 
-        corps = [
-            "CORP01",
-            "CORP02",
-            "CORP03",
-            "CORP04",
-            "CORP05",
-            "CORP06",
-            "CORP07",
-            "CORP08",
-            "CORP09",
-            "CORP10",
-            "CORP11",
-            "CORP12",
-            "CORP18",
-            "CORP19",
-            "CORP20",
-            "CORP21",
-            "CORP22",
-        ]
+        corps = {
+            "CORP01": "Credicor",
+            "CORP02": "Ecoline",
+            "CORP03": "Helion",
+            "CORP04": "Mining Guild",
+            "CORP05": "IC",
+            "CORP06": "Inventrix",
+            "CORP07": "Phobolog",
+            "CORP08": "Tharsis",
+            "CORP09": "Thorgate",
+            "CORP10": "UNMI",
+            "CORP11": "Teractor",
+            "CORP12": "Saturn",
+            "CORP18": "Cheung Shing",
+            "CORP19": "Point Luna",
+            "CORP20": "Robinson",
+            "CORP21": "Valley Trust",
+            "CORP22": "Vitor",
+        }
 
         prelude_cards = ["P36", "P37", "P38", "P39", "P40", "P41", "P42"]
 
         final_cards = cards + prelude_cards
 
-        choices = random.sample(corps, 2) + random.sample(preludes, 4) + random.sample(final_cards, 10)
+        choices = random.sample(list(corps), 2) + random.sample(preludes, 4) + random.sample(final_cards, 10)
 
+        chosen_corps = list(map(
+            lambda x: corps.get(x),
+            [x for x in choices if x.startswith("CORP")]
+        ))
+        
         final_url = f'{url}#{"#".join(choices)}'
 
         _, message = await channel.create_thread(
-            name=f'{datetime.now().strftime("%B %d, %Y")}',
+            name=f'{datetime.now().strftime("%B %d, %Y")}: {chosen_corps[1]} vs. {chosen_corps[0]}',
             content=f"""{final_url}
 
-        Rate this hand with the emojis below!"""
+Rate this hand with the emojis below!"""
         )
 
         print(f'message created: ${message}')
@@ -85,3 +90,5 @@ def run_bot():
 
 if __name__ == "__main__":
     stub.deploy("tm-hand-bot")
+
+# run_bot()
