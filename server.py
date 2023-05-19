@@ -1,35 +1,34 @@
-import modal
 import random
 from datetime import datetime
+
+import modal
+
 import creds
 
 discord_image = modal.Image.debian_slim().pip_install("discord")
-stub = modal.Stub()
+stub = modal.Stub("tm-hand-bot")
 
-@stub.function(schedule=modal.Cron('0 15 * * *'), image=discord_image)
+
+@stub.function(schedule=modal.Cron("0 15 * * *"), image=discord_image)
 def run_bot():
     import discord
+
     intents = discord.Intents.default()
     intents.message_content = True
     client = discord.Client(intents=intents)
 
-    print(f'client initiated: {client}')
+    print(f"client initiated: {client}")
 
     @client.event
     async def on_ready():
         channel = client.get_channel(creds.FORUM_CHANNEL)
-        print(f'channel found: {channel}')
+        print(f"channel found: {channel}")
 
         url = "https://ssimeonoff.github.io/cards-list"
-        preludes = [
-            f'P0{i+1}' if i < 9 else
-            f'P{i+1}' for i in range(35)
-        ]
+        preludes = [f"P0{i+1}" if i < 9 else f"P{i+1}" for i in range(35)]
 
         cards = [
-            f'{i+1}' if i >= 99 else
-            f'0{i+1}' if i >= 9 else
-            f'00{i+1}'
+            f"{i+1}" if i >= 99 else f"0{i+1}" if i >= 9 else f"00{i+1}"
             for i in range(208)
         ]
 
@@ -57,36 +56,43 @@ def run_bot():
 
         final_cards = cards + prelude_cards
 
-        choices = random.sample(list(corps), 2) + random.sample(preludes, 4) + random.sample(final_cards, 10)
+        choices = (
+            random.sample(list(corps), 2)
+            + random.sample(preludes, 4)
+            + random.sample(final_cards, 10)
+        )
 
-        chosen_corps = list(map(
-            lambda x: corps.get(x),
-            [x for x in choices if x.startswith("CORP")]
-        ))
-        
+        board = random.sample(["Tharsis", "Elysium", "Hellas"], 1)
+        order = random.sample(["first", "second"], 1)
+
+        chosen_corps = list(
+            map(lambda x: corps.get(x), [x for x in choices if x.startswith("CORP")])
+        )
+
         final_url = f'{url}#{"#".join(choices)}'
 
         _, message = await channel.create_thread(
-            name=f'{datetime.now().strftime("%B %d, %Y")}: {chosen_corps[1]} vs. {chosen_corps[0]}',
+            name=f'{datetime.now().strftime("%B %d, %Y")}: {chosen_corps[1]} vs. {chosen_corps[0]} on {board[0]}, going {order}',
             content=f"""{final_url}
 
-Rate this hand with the emojis below!"""
+Rate this hand with the emojis below!""",
         )
 
-        print(f'message created: ${message}')
+        print(f"message created: ${message}")
 
-        await message.add_reaction('1️⃣')
-        await message.add_reaction('2️⃣')
-        await message.add_reaction('3️⃣')
-        await message.add_reaction('4️⃣')
-        await message.add_reaction('5️⃣')
-        await message.add_reaction('6️⃣')
-        await message.add_reaction('7️⃣')
-        await message.add_reaction('8️⃣')
-        await message.add_reaction('9️⃣')
-        await message.add_reaction('0️⃣')
+        await message.add_reaction("1️⃣")
+        await message.add_reaction("2️⃣")
+        await message.add_reaction("3️⃣")
+        await message.add_reaction("4️⃣")
+        await message.add_reaction("5️⃣")
+        await message.add_reaction("6️⃣")
+        await message.add_reaction("7️⃣")
+        await message.add_reaction("8️⃣")
+        await message.add_reaction("9️⃣")
+        await message.add_reaction("0️⃣")
 
     client.run(creds.DISCORD_TOKEN)
+
 
 if __name__ == "__main__":
     stub.deploy("tm-hand-bot")
