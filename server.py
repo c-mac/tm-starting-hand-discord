@@ -72,7 +72,7 @@ def run_bot():
         final_url = f'{url}#{"#".join(choices)}'
 
         _, message = await channel.create_thread(
-            name=f'{datetime.now().strftime("%B %d, %Y")}: {chosen_corps[1]} vs. {chosen_corps[0]} on {board[0]}, going {order}',
+            name=f'{datetime.now().strftime("%B %d, %Y")}: {chosen_corps[1]} vs. {chosen_corps[0]} on {board[0]}, going {order[0]}',
             content=f"""{final_url}
 
 Rate this hand with the emojis below!""",
