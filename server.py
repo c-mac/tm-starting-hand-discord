@@ -100,8 +100,8 @@ def run_bot():
         order = random.sample(["first", "second"], 1)
         
 
-        base_message = f'{data["venus"]}: {data["venus_corps"][1]} vs. {data["venus_corps"][0]} on {board[0]}, going {order[0]}'
-        venus_message = print(f'{data["base"]}: {data["base_corps"][1]} vs. {data["base_corps"][0]} on {board[0]}, going {order[0]}')
+        venus_message = f'{data["venus_corps"][1]} vs. {data["venus_corps"][0]} on {board[0]}, going {order[0]}'
+        base_message = f'{data["base_corps"][1]} vs. {data["base_corps"][0]} on {board[0]}, going {order[0]}'
 
         await base_channel.create_thread(
             name=base_message,
