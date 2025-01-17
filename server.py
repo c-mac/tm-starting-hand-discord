@@ -1,5 +1,4 @@
 import random
-from datetime import datetime
 import modal
 import creds
 
@@ -9,10 +8,9 @@ def gen_card_urls():
     preludes = [f"P0{i+1}" if i < 9 else f"P{i+1}" for i in range(35)]
 
     cards = [
-        f"{i+1}" if i >= 99 else f"0{i+1}" if i >= 9 else f"00{i+1}"
-        for i in range(208)
+        f"{i+1}" if i >= 99 else f"0{i+1}" if i >= 9 else f"00{i+1}" for i in range(208)
     ]
-    
+
     corps = {
         "CORP01": "Credicor",
         "CORP02": "Ecoline",
@@ -38,16 +36,14 @@ def gen_card_urls():
         "CORP14": "Celestic",
         "CORP15": "Manutech",
         "CORP16": "Morning Star Inc.",
-        "CORP17": "Viron"
+        "CORP17": "Viron",
     }
 
     merged_corps = {**corps, **venus_corps}
 
     prelude_cards = ["P36", "P37", "P38", "P39", "P40", "P41", "P42"]
 
-    venus_cards = [
-        f"{i}" for i in range(213, 262)
-    ]
+    venus_cards = [f"{i}" for i in range(213, 262)]
 
     final_cards = cards + prelude_cards
 
@@ -67,21 +63,25 @@ def gen_card_urls():
     venus_url = f'{url}#{"#".join(venus_choices)}'
 
     return {
-        'base': final_url,
-        'venus': venus_url,
-        'base_corps': list(
+        "base": final_url,
+        "venus": venus_url,
+        "base_corps": list(
             map(lambda x: corps.get(x), [x for x in choices if x.startswith("CORP")])
         ),
-        'venus_corps': list(
-            map(lambda x: merged_corps.get(x), [x for x in venus_choices if x.startswith("CORP")])
-        )
+        "venus_corps": list(
+            map(
+                lambda x: merged_corps.get(x),
+                [x for x in venus_choices if x.startswith("CORP")],
+            )
+        ),
     }
 
+
 discord_image = modal.Image.debian_slim().pip_install("discord")
-stub = modal.Stub("tm-hand-bot")
+app = modal.App("tm-hand-bot")
 
 
-@stub.function(schedule=modal.Cron("0 15 * * *"), image=discord_image)
+@app.function(schedule=modal.Cron("0 15 * * *"), image=discord_image)
 def run_bot():
     import discord
 
@@ -93,29 +93,21 @@ def run_bot():
     async def on_ready():
         base_channel = client.get_channel(creds.BASE_CHANNEL)
         venus_channel = client.get_channel(creds.VENUS_CHANNEL)
-        
+
         data = gen_card_urls()
 
         board = random.sample(["Tharsis", "Elysium", "Hellas"], 1)
         order = random.sample(["first", "second"], 1)
-        
 
         venus_message = f'{data["venus_corps"][1]} vs. {data["venus_corps"][0]} on {board[0]}, going {order[0]}'
         base_message = f'{data["base_corps"][1]} vs. {data["base_corps"][0]} on {board[0]}, going {order[0]}'
 
-        await base_channel.create_thread(
-            name=base_message,
-            content=data["base"]
-        )
+        await base_channel.create_thread(name=base_message, content=data["base"])
 
-        await venus_channel.create_thread(
-            name=venus_message,
-            content=data["venus"]
-        )        
+        await venus_channel.create_thread(name=venus_message, content=data["venus"])
 
     client.run(creds.DISCORD_TOKEN)
 
 
 if __name__ == "__main__":
-    stub.deploy("tm-hand-bot")
-    
+    app.deploy("tm-hand-bot")
